@@ -12,15 +12,17 @@
   "dependencies": {
     "@nuxt/image": "^1.8.1",
     "@nuxtjs/google-fonts": "^3.2.0",
+    "@pinia/nuxt": "^0.7.0",
     "axios": "^1.7.7",
     "nuxt": "^3.13.2",
+    "pinia": "^2.2.6",
     "vue": "latest",
-    "vue-router": "latest",
-    "vuex": "^4.0.2"
+    "vue-router": "latest"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "devDependencies": {
-    "sass": "^1.80.6",
+    "sass": "^1.81.0",
+    "sass-embedded": "^1.81.0",
     "sass-loader": "^16.0.3"
   }
 }
