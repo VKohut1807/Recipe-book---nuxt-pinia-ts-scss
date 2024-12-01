@@ -7,7 +7,7 @@ import {
   AuthGetters,
   AuthMutations,
   AuthActions,
-} from "~/stores/enums/enum-auth";
+} from "@/stores/enums/enum-auth";
 
 import type { AuthTypes } from "@/types/auth-types";
 import type { UserType, ExtendedUserType } from "@/types/user-types";

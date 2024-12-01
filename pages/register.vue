@@ -11,8 +11,8 @@ import type { AuthTypes } from "@/types/auth-types";
 const authStore = useAuthStore();
 
 const user: UserType = reactive({
-  username: null,
   email: null,
+  username: null,
   password: null,
 });
 
@@ -25,29 +25,30 @@ const validationErrors: ComputedRef<AuthTypes["validationErrors"]> = computed(
 const inputError: ComputedRef<string[]> = computed(() =>
   validationErrors.value ? Object.keys(validationErrors.value) : []
 );
+
+const registerUser = async () => {
+  await authStore[AuthActions.register](user);
+};
 </script>
 
 <template>
   <section id="register-page" class="register-page">
     <div class="wrapper-50">
-      <form
-        @submit.prevent="authStore[AuthActions.register]"
-        class="register-form"
-      >
-        <div class="input-box">
-          <input
-            v-model="user.username"
-            type="text"
-            placeholder="Username"
-            :class="{ empty: inputError.includes('username') }"
-          />
-        </div>
+      <form @submit.prevent="registerUser" class="register-form">
         <div class="input-box">
           <input
             v-model="user.email"
             type="text"
             placeholder="Email"
             :class="{ empty: inputError.includes('email') }"
+          />
+        </div>
+        <div class="input-box">
+          <input
+            v-model="user.username"
+            type="text"
+            placeholder="Username"
+            :class="{ empty: inputError.includes('username') }"
           />
         </div>
         <div class="input-box">
