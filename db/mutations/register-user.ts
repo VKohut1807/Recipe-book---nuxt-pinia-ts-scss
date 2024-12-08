@@ -1,10 +1,12 @@
 import db from "@/db";
 
-export const registerUserMutation = async (
-  email: string,
-  username: string,
-  password: string
-) => {
+import type { UserType, ExtendedUserType } from "@/types/user-types";
+
+export const registerUserMutation = async ({
+  username,
+  email,
+  password,
+}: UserType): Promise<ExtendedUserType> => {
   const statement = db.prepare(`
     INSERT INTO users (email, username, password)
     VALUES (?, ?, ?)
@@ -13,7 +15,7 @@ export const registerUserMutation = async (
   const result = statement.run(email, username, password);
 
   return {
-    id: result.lastInsertRowid,
+    id: Number(result.lastInsertRowid),
     email,
     username,
   };

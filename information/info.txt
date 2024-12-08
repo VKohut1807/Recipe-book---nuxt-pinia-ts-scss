@@ -1,0 +1,3 @@
+# node version is used --- v22.3.0
+
+# Database Management with SQLite3(better-sqlite3) 

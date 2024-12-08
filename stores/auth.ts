@@ -9,7 +9,7 @@ import {
   AuthActions,
 } from "@/stores/enums/enum-auth";
 
-import type { AuthTypes } from "@/types/auth-types";
+import type { AuthTypes, AuthResponse } from "@/types/auth-types";
 import type { UserType, ExtendedUserType } from "@/types/user-types";
 
 const mutations = {
@@ -23,9 +23,31 @@ const mutations = {
   ): void => {
     state.isSubmitting = false;
     state.isLoggedIn = true;
+    console.log("payload", payload);
+
     state.currentUser = payload;
   },
   [AuthMutations.registerFailure]: (
+    state: AuthTypes,
+    payload: AuthTypes["validationErrors"]
+  ): void => {
+    state.isSubmitting = false;
+    state.validationErrors = payload;
+  },
+
+  [AuthMutations.loginStart]: (state: AuthTypes): void => {
+    state.isSubmitting = true;
+    state.validationErrors = null;
+  },
+  [AuthMutations.loginSuccess]: (
+    state: AuthTypes,
+    payload: ExtendedUserType
+  ): void => {
+    state.isSubmitting = false;
+    state.isLoggedIn = true;
+    state.currentUser = payload;
+  },
+  [AuthMutations.loginFailure]: (
     state: AuthTypes,
     payload: AuthTypes["validationErrors"]
   ): void => {
@@ -61,19 +83,61 @@ export const useAuthStore = defineStore("auth", {
         authApi
           .register(credentials)
           .then((response) => {
-            mutations[AuthMutations.registerSuccess](this, response.data.user);
+            const user = response?.data?.data?.user ?? null;
 
-            setItem("accessToken", response.data.user.token);
+            mutations[AuthMutations.registerSuccess](this, user);
 
-            resolve(response.data.user);
+            setItem("accessToken", user.token);
+
+            resolve(user);
           })
-          .catch((errors: AxiosError<{ errors?: string[] }>) => {
+          .catch((error: AxiosError<AuthResponse>) => {
+            const data = error?.response?.data ?? null;
+
             mutations[AuthMutations.registerFailure](
               this,
-              errors?.response?.data?.errors || null
+              data?.data?.errors ?? null
             );
 
-            console.error("ERRORS REGISTER", errors?.response?.data?.errors);
+            console.error(
+              "status:",
+              data?.statusCode,
+              "message:",
+              data?.message ?? null
+            );
+          });
+      });
+    },
+
+    async [AuthActions.login](credentials: UserType) {
+      return new Promise((resolve, reject) => {
+        mutations[AuthMutations.loginStart](this);
+
+        authApi
+          .login(credentials)
+          .then((response) => {
+            const user = response?.data?.data?.user ?? null;
+
+            mutations[AuthMutations.loginSuccess](this, user);
+
+            setItem("accessToken", user.token);
+
+            resolve(user);
+          })
+          .catch((error: AxiosError<AuthResponse>) => {
+            const data = error?.response?.data ?? null;
+
+            mutations[AuthMutations.loginFailure](
+              this,
+              data?.data?.errors ?? null
+            );
+
+            console.error(
+              "status:",
+              data?.statusCode,
+              "message:",
+              data?.message ?? null
+            );
           });
       });
     },

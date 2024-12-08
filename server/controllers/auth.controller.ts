@@ -1,33 +1,19 @@
 import { register } from "@/server/services/auth.service";
+import { login } from "@/server/services/auth.service";
 
-export const registerUser = async (body: {
-  user: {
-    email: string;
-    username: string;
-    password: string;
-  };
-}) => {
-  const { email, username, password } = body.user;
-  if (!email || !username || !password) {
-    console.log("body", body);
+import type { UserType } from "@/types/user-types";
+import type { AuthResponse } from "@/types/auth-types";
 
-    return {
-      statusCode: 400,
-      message: "Email and password are required",
-    };
-  }
+export const registerUser = async (body: { user: UserType }) => {
+  const { username, email, password } = body.user;
 
-  try {
-    const user = await register(email, username, password);
-    return {
-      statusCode: 201,
-      message: "User registered successfully",
-      user: user,
-    };
-  } catch (error: any) {
-    return {
-      statusCode: 500,
-      message: error.message || "Something went wrong",
-    };
-  }
+  const response: AuthResponse = await register({ username, email, password });
+  return response;
+};
+
+export const loginUser = async (body: { user: UserType }) => {
+  const { email, password } = body.user;
+
+  const response: AuthResponse = await login({ email, password });
+  return response;
 };

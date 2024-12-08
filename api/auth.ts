@@ -5,6 +5,11 @@ const register = (credentials: UserType) => {
   return axios.post("/api/auth/register", { user: credentials });
 };
 
+const login = (credentials: UserType) => {
+  return axios.post("/api/auth/login", { user: credentials });
+};
+
 export default {
   register,
+  login,
 };

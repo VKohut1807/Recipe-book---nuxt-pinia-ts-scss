@@ -7,3 +7,12 @@ export type AuthTypes = {
   validationErrors: object | null;
   isLoggedIn: boolean | null;
 };
+
+export type AuthResponse = {
+  statusCode: number;
+  message: string;
+  data: {
+    errors?: Record<string, string>;
+    user?: ExtendedUserType;
+  };
+};

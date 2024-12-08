@@ -14,7 +14,6 @@ const router = useRouter();
 
 const user: UserType = reactive({
   email: null,
-  username: null,
   password: null,
 });
 
@@ -32,25 +31,17 @@ const isSubmitting: ComputedRef<AuthTypes["isSubmitting"]> = computed(() => {
   return authStore.isSubmitting;
 });
 
-const registerUser = async (): Promise<void> => {
-  await authStore[AuthActions.register](user).then(() =>
+const loginUser = async (): Promise<void> => {
+  await authStore[AuthActions.login](user).then(() =>
     router.push({ name: "index" })
   );
 };
 </script>
 
 <template>
-  <section id="register-page" class="register-page">
+  <section id="login-page" class="login-page">
     <div class="wrapper-50">
-      <form @submit.prevent="registerUser" class="register-form">
-        <div class="input-box">
-          <input
-            v-model="user.username"
-            type="text"
-            placeholder="Username"
-            :class="{ empty: inputError.includes('username') }"
-          />
-        </div>
+      <form @submit.prevent="loginUser" class="login-form">
         <div class="input-box">
           <input
             v-model="user.email"
@@ -64,11 +55,11 @@ const registerUser = async (): Promise<void> => {
             v-model="user.password"
             type="password"
             placeholder="Password"
-            autocomplete="new-password"
+            autocomplete="current-password"
             :class="{ empty: inputError.includes('password') }"
           />
         </div>
-        <button :disabled="isSubmitting" class="btn">Sign Up</button>
+        <button :disabled="isSubmitting" class="btn">Sign In</button>
       </form>
     </div>
   </section>
@@ -77,15 +68,16 @@ const registerUser = async (): Promise<void> => {
 <style scoped lang="scss">
 @use "../assets/styles/config/config" as *;
 
-.register-page {
-  width: 100%;
-  height: fit-content;
-  margin: 7rem 0;
+.login-page {
+  height: 100%;
+  margin: 7rem 0 0;
 
-  .register-form {
+  .login-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin: 0 auto;
+    min-width: 50%;
 
     .input-box {
       input {
@@ -93,7 +85,7 @@ const registerUser = async (): Promise<void> => {
         padding: 0.75rem 1.5rem;
         font-size: 1.5rem;
         border-radius: 8px;
-        border: 1px solid $third;
+        border: 1px solid $third_60;
         outline: none;
         width: 100%;
 
