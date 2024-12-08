@@ -84,9 +84,12 @@ export const login = async ({
   }
 
   if (userExists.password !== password) {
+    errors.password = "Password doesn't match";
+
     throw createError({
       statusCode: 401,
       message: "Invalid password",
+      data: { errors },
     }) as AuthResponse;
   }
 
