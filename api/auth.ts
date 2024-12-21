@@ -9,7 +9,12 @@ const login = (credentials: UserType) => {
   return axios.post("/api/auth/login", { user: credentials });
 };
 
+const getCurrentUser = () => {
+  return axios.get(`/api/auth/user`);
+};
+
 export default {
   register,
   login,
+  getCurrentUser,
 };

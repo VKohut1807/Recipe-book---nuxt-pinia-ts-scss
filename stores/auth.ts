@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { AxiosError } from "axios";
+import { H3Event, setCookie } from "h3";
 
 import authApi from "@/api/auth";
-import { setItem } from "@/helpers/persistanceStorage";
 import {
   AuthGetters,
   AuthMutations,
@@ -58,6 +58,27 @@ const mutations = {
   [AuthMutations.droppingErrors](state: AuthTypes) {
     state.validationErrors = null;
   },
+
+  [AuthMutations.getCurrentUserStart](state: AuthTypes) {
+    state.isLoading = true;
+  },
+  [AuthMutations.getCurrentUserSuccess](
+    state: AuthTypes,
+    payload: ExtendedUserType
+  ) {
+    state.isLoading = false;
+    state.isLoggedIn = true;
+    state.currentUser = payload;
+  },
+  [AuthMutations.getCurrentUserFailure](
+    state: AuthTypes,
+    payload: AuthTypes["validationErrors"]
+  ) {
+    state.isLoading = false;
+    state.isLoggedIn = false;
+    state.currentUser = null;
+    state.validationErrors = payload;
+  },
 };
 
 export const useAuthStore = defineStore("auth", {
@@ -76,7 +97,7 @@ export const useAuthStore = defineStore("auth", {
   },
 
   actions: {
-    async [AuthActions.register](credentials: UserType) {
+    async [AuthActions.register](event: H3Event, credentials: UserType) {
       return new Promise((resolve, reject) => {
         mutations[AuthMutations.registerStart](this);
 
@@ -84,10 +105,15 @@ export const useAuthStore = defineStore("auth", {
           .register(credentials)
           .then((response) => {
             const user = response?.data?.data?.user ?? null;
+            const token = response?.data?.data?.token ?? null;
 
             mutations[AuthMutations.registerSuccess](this, user);
 
-            setItem("accessToken", user.token);
+            if (token) {
+              setCookie(event, "auth_token", token, {
+                maxAge: 60 * 60 * 24 * 7,
+              });
+            }
 
             resolve(user);
           })
@@ -109,7 +135,7 @@ export const useAuthStore = defineStore("auth", {
       });
     },
 
-    async [AuthActions.login](credentials: UserType) {
+    async [AuthActions.login](event: H3Event, credentials: UserType) {
       return new Promise((resolve, reject) => {
         mutations[AuthMutations.loginStart](this);
 
@@ -117,10 +143,15 @@ export const useAuthStore = defineStore("auth", {
           .login(credentials)
           .then((response) => {
             const user = response?.data?.data?.user ?? null;
+            const token = response?.data?.data?.token ?? null;
 
             mutations[AuthMutations.loginSuccess](this, user);
 
-            setItem("accessToken", user.token);
+            if (token) {
+              setCookie(event, "auth_token", token, {
+                maxAge: 60 * 60 * 24 * 7,
+              });
+            }
 
             resolve(user);
           })
@@ -144,6 +175,37 @@ export const useAuthStore = defineStore("auth", {
 
     [AuthActions.droppingErrors](): void {
       mutations[AuthMutations.droppingErrors](this);
+    },
+
+    async [AuthActions.getCurrentUser](event: H3Event, credentials: UserType) {
+      return new Promise((resolve, reject) => {
+        mutations[AuthMutations.getCurrentUserStart](this);
+
+        authApi
+          .getCurrentUser()
+          .then((response) => {
+            const user = response?.data?.data?.user ?? null;
+
+            mutations[AuthMutations.getCurrentUserSuccess](this, user);
+
+            resolve(user);
+          })
+          .catch((error: AxiosError<AuthResponse>) => {
+            const data = error?.response?.data ?? null;
+
+            mutations[AuthMutations.getCurrentUserFailure](
+              this,
+              data?.data?.errors ?? null
+            );
+
+            console.error(
+              "status:",
+              data?.statusCode,
+              "message:",
+              data?.message ?? null
+            );
+          });
+      });
     },
   },
 });

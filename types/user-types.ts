@@ -7,6 +7,6 @@ export type UserType = {
 export type ExtendedUserType = UserType & {
   id?: number;
   image?: string;
-  token?: string;
+  cookie?: string;
   bio?: string;
 };

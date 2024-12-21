@@ -1,10 +1,12 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 axios.interceptors.request.use((config) => {
-  const authorizisationToken = "WILL BE TOKEN";
+  const token = Cookies.get("auth_token");
 
-  config.headers.Authorization = authorizisationToken;
-
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
